@@ -1,0 +1,45 @@
+export const mockAlarmData = {
+  isSuccess: true,
+  code: 'COMMON_200',
+  message: '요청에 성공했습니다.',
+  result: {
+    page: {
+      totalPage: 1,
+      pageNumber: 0,
+    },
+    alarmType: 'TOTAL',
+    alarmCount: 3,
+    alarms: [
+      {
+        alarmId: 1,
+        scheduleId: 101,
+        isOpened: false,
+        title: '기숙사 신청 마감',
+        Dday: 1,
+        alarmType: 'IMMINENT',
+        imgUrl: '',
+        message: '기숙사 신청 마감이 얼마 남지 않았어요.',
+      },
+      {
+        alarmId: 2,
+        scheduleId: 102,
+        isOpened: false,
+        title: '데이터수학통계 시험',
+        Dday: 3,
+        alarmType: 'IMMINENT',
+        imgUrl: '',
+        message: '시험 일정이 다가오고 있어요.',
+      },
+      {
+        alarmId: 3,
+        scheduleId: 103,
+        isOpened: false,
+        title: '확인하지 않은 정보',
+        Dday: 7,
+        alarmType: 'UNVIEWED',
+        imgUrl: '',
+        message: '아직 확인하지 않은 정보가 있어요.',
+      },
+    ],
+  },
+};
