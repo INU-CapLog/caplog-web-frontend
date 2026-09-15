@@ -1,7 +1,3 @@
-import { usePushNotifications } from './hooks/usePushNotifications';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { SendIntent } from 'send-intent';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import PageTransition from './components/common/PageTransition';
@@ -158,23 +154,6 @@ function AnimatedRoutes() {
 }
 
 function App() {
-  usePushNotifications();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    SendIntent.checkSendIntentReceived().then((result) => {
-      if (!result?.url) return;
-
-      navigate('/upload', {
-        state: {
-          imageUrl: result.url,
-          title: result.title,
-        },
-        replace: true,
-      });
-    });
-  }, []);
-
   return (
     <>
       {/* PC 화면 */}

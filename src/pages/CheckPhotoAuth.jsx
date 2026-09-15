@@ -1,42 +1,37 @@
 import * as S from './CheckAuth.styles';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { putPhotoAuth } from '../api/auth';
-import { Camera, CameraSource, CameraResultType } from '@capacitor/camera';
 
 export default function CheckPhotoAuth() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 마이페이지에서 왔는지 확인
+  const isFromMyPage = location.state?.fromMyPage;
 
   /** 사진 권한 허용 여부 전송 API 함수 */
   const handlePhotoAuth = async () => {
-    // 웹이면 그냥 다음 페이지로
-    if (!Capacitor.isNativePlatform()) {
-      navigate('/check-noti-auth');
-      return;
-    }
-
     try {
-      const permission = await Camera.requestPermissions({
-        permissions: ['camera', 'photos'],
-      });
+      const data = await putPhotoAuth(true);
 
-      console.log('Permission Result:', permission);
-
-      if (permission.photos === 'granted' || permission.photos === 'limited') {
-        const data = await putPhotoAuth(true);
-
-        if (data.isSuccess) {
-          navigate('/check-noti-auth');
+      if (data.isSuccess) {
+        if (isFromMyPage) {
+          navigate(-1);
         } else {
-          alert(data.message || '권한 설정 처리 중 문제가 발생했습니다.');
+          navigate('/check-noti-auth');
         }
       } else {
-        alert('갤러리 권한이 필요합니다. 설정에서 허용해주세요.');
-        navigate('/check-noti-auth');
+        alert(data.message || '권한 설정 처리 중 문제가 발생했습니다.');
       }
     } catch (error) {
       console.error('권한 설정 오류:', error);
-      alert('권한 요청 중 문제가 발생했습니다. 기기 설정에서 권한을 확인해주세요.');
-      navigate('/check-noti-auth');
+      alert('처리 중 문제가 발생했습니다.');
+
+      if (isFromMyPage) {
+        navigate(-1);
+      } else {
+        navigate('/check-noti-auth');
+      }
     }
   };
 

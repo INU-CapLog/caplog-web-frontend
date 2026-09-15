@@ -1,56 +1,26 @@
 import * as S from './CheckAuth.styles';
 import { useNavigate } from 'react-router-dom';
-import { putNotiAuth, postFcmToken } from '../api/auth';
-import { PushNotifications } from '@capacitor/push-notifications';
-import { Capacitor } from '@capacitor/core';
+import { putNotiAuth } from '../api/auth';
 
 export default function CheckNotiAuth() {
   const navigate = useNavigate();
 
   /** 알림 권한 허용 여부 전송 API 함수 */
   const handleNotiAuth = async () => {
-    // 웹이면 그냥 다음 페이지로
-    if (!Capacitor.isNativePlatform()) {
-      navigate('/home');
-      return;
-    }
-
     try {
-      const { receive } = await PushNotifications.requestPermissions();
+      let isApproved = false;
 
-      if (receive !== 'granted') {
-        alert('알림 권한이 거부되었습니다. 설정에서 허용해주세요.');
-        navigate('/home');
-        return;
+      if ('Notification' in window) {
+        const permission =
+          Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission;
+        isApproved = permission === 'granted';
       }
 
-      const getTokenPromise = new Promise((resolve, reject) => {
-        PushNotifications.addListener('registration', (token) => {
-          console.log('FCM 토큰 수신 완료:', token.value);
-          resolve(token.value);
-        });
-        PushNotifications.addListener('registrationError', (err) => {
-          console.error('토큰 발급 에러:', err);
-          reject(err);
-        });
-      });
-
-      await PushNotifications.register();
-
-      const fcmToken = await getTokenPromise;
-
-      await postFcmToken(fcmToken);
-      const data = await putNotiAuth(true);
-
-      if (data.isSuccess) {
-        navigate('/home');
-      } else {
-        alert(data.message || '권한 설정 처리 중 문제가 발생했습니다.');
-        navigate('/home');
-      }
+      await putNotiAuth(isApproved);
+      navigate('/home');
     } catch (error) {
       console.error('알림 권한 설정 오류:', error);
-      alert('알림 설정 중 문제가 발생했습니다. 앱 설정에서 확인해주세요.');
+      alert('알림 설정 중 문제가 발생했습니다. 다시 시도해주세요.');
       navigate('/home');
     }
   };

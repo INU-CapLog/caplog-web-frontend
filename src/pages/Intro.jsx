@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -33,14 +33,22 @@ const ONBOARDING_DATA = [
 
 export default function Intro() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isFromMyPage = location.state?.fromMyPage; // 마이페이지에서 온 경우 확인
+
   const [swiperInstance, setSwiperInstance] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const handleNextClick = () => {
     if (activeIndex === ONBOARDING_DATA.length - 1) {
-      navigate('/login');
+      if (isFromMyPage) {
+        navigate(-1);
+      } else {
+        navigate('/login');
+      }
     } else {
       swiperInstance?.slideNext();
+      setActiveIndex((prev) => prev + 1);
     }
   };
 
@@ -100,7 +108,7 @@ export default function Intro() {
 
       <S.ButtonWrapper>
         <S.SubmitButton onClick={handleNextClick}>
-          {activeIndex === ONBOARDING_DATA.length - 1 ? '시작하기' : '다음'}
+          {activeIndex === ONBOARDING_DATA.length - 1 ? (isFromMyPage ? '돌아가기' : '시작하기') : '다음'}
         </S.SubmitButton>
       </S.ButtonWrapper>
     </S.Container>

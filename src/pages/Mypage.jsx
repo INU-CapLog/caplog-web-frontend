@@ -7,7 +7,7 @@ import avatarImg1 from '../assets/images/Avatar_1.png';
 
 export default function Mypage() {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState('LikeLionINU');
+  const [userName, setUserName] = useState('핫도그');
   const menuItems = [
     { label: '프로필 설정', path: '/mypage/edit' },
     { label: '알림 설정', path: '/mypage/notifications' },
@@ -21,7 +21,7 @@ export default function Mypage() {
 
   // 유저 기본 정보
   const [userInfo, setUserInfo] = useState({
-    userName: 'LikeLionINU', // 기본 닉네임
+    userName: '핫도그', // 기본 닉네임
     imgUrl: avatarImg1, // 기본 프로필
     totalSchedule: 0, // 기본 저장한 정보
     thisMonthSchedule: 0, // 기본 이번 달 일정
@@ -47,7 +47,7 @@ export default function Mypage() {
       const data = await getUserInfo();
       if (data.isSuccess && data.result) {
         setUserInfo({
-          userName: data.result.userName || 'LikeLionINU',
+          userName: data.result.userName || '핫도그',
           imgUrl: data.result.imgUrl || avatarImg1,
           totalSchedule: data.result.totalSchedule || 0,
           thisMonthSchedule: data.result.thisMonthSchedule || 0,
@@ -112,6 +112,12 @@ export default function Mypage() {
                 onClick={() => {
                   if (item.label === '로그아웃') {
                     handleLogoutClick();
+                  } else if (
+                    item.label === '서비스 소개' ||
+                    item.label === 'CapLog 사진 권한 보기' ||
+                    item.label === 'CapLog 알림 권한 보기'
+                  ) {
+                    navigate(item.path, { state: { fromMyPage: true } });
                   } else {
                     navigate(item.path);
                   }
