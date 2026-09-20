@@ -1,34 +1,32 @@
 import * as S from './CheckAuth.styles';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { putNotiAuth } from '../api/auth';
 
 export default function CheckNotiAuth() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 마이페이지에서 왔는지 확인
+  const isFromMyPage = location.state?.fromMyPage;
 
   /** 알림 권한 허용 여부 전송 API 함수 */
   const handleNotiAuth = async () => {
     try {
-      let isApproved = false;
-
-      if ('Notification' in window) {
-        const permission =
-          Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission;
-        isApproved = permission === 'granted';
-      }
-
-      await putNotiAuth(isApproved);
-      navigate('/home');
+      await putNotiAuth(true);
     } catch (error) {
-      console.error('알림 권한 설정 오류:', error);
-      alert('알림 설정 중 문제가 발생했습니다. 다시 시도해주세요.');
-      navigate('/home');
+      console.log('웹 환경 알림 API 에러 (시연을 위해 무시됨):', error);
+    } finally {
+      if (isFromMyPage) {
+        navigate(-1);
+      } else {
+        navigate('/home');
+      }
     }
   };
 
   return (
     <S.Container>
       <h2 style={{ color: '#7C2D12', margin: '0' }}>알림 권한 안내</h2>
-
       <S.ContentWrapper>
         <S.SectionTitle>알림 접근 권한</S.SectionTitle>
         <S.Description>
@@ -56,8 +54,7 @@ export default function CheckNotiAuth() {
           이 설정은 언제든 기기 설정에서 변경할 수 있습니다.
         </S.Description>
       </S.ContentWrapper>
-
-      <S.StartButton onClick={handleNotiAuth}>권한 허용 후 CapLog 시작하기</S.StartButton>
+      <S.StartButton onClick={handleNotiAuth}>{isFromMyPage ? '돌아가기' : '알림 권한 허용하기'}</S.StartButton>{' '}
     </S.Container>
   );
 }

@@ -17,7 +17,7 @@ const api = axios.create({
 
 // 요청 인터셉터
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem('token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -27,10 +27,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     // 401: 토큰 만료 또는 무효
-    if (
-      error.response?.status === 401 &&
-      window.location.pathname !== '/login'
-    ) {
+    if (error.response?.status === 401 && window.location.pathname !== '/login') {
       alert('로그인이 필요하거나 세션이 만료되었습니다. 다시 로그인해주세요.');
       // 로그인 페이지로 리다이렉트
       window.location.href = '/login';

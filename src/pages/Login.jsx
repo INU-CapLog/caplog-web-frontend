@@ -26,14 +26,11 @@ export default function Login() {
 
       if (data.isSuccess) {
         // 토큰 저장
-        const token = data.result?.accessToken;
-        if (token) localStorage.setItem('accessToken', token);
+        const token = data.result?.token;
+        if (token) localStorage.setItem('token', token);
 
         try {
-          const [photoAuthData, notiAuthData] = await Promise.all([
-            checkPhotoAuth(),
-            checkNotiAuth(),
-          ]);
+          const [photoAuthData, notiAuthData] = await Promise.all([checkPhotoAuth(), checkNotiAuth()]);
           const isPhotoApproved = photoAuthData.result?.isApproved;
           const isNotiApproved = notiAuthData.result?.isApproved;
 
@@ -51,9 +48,7 @@ export default function Login() {
         setErrorMessage(data.message);
       }
     } catch (error) {
-      const errorMsg =
-        error.response?.data?.message ||
-        '서버와 통신할 수 없습니다. 다시 시도해주세요.';
+      const errorMsg = error.response?.data?.message || '서버와 통신할 수 없습니다. 다시 시도해주세요.';
       setErrorMessage(errorMsg);
     }
   };
