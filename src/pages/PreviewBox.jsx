@@ -101,9 +101,15 @@ const CountBadge = styled.span`
 
 function PreviewBox({ id, image, title, isGroup, isNew, elementCount }) {
   const navigate = useNavigate();
-  const [showNew, setShowNew] = useState(isNew);
+  const storageKey = `${isGroup ? 'group' : 'schedule'}-${id}`;
+
+  const [showNew, setShowNew] = useState(() => {
+    const alreadyRead = localStorage.getItem(storageKey) === 'read';
+    return isNew && !alreadyRead;
+  });
 
   const handleClick = () => {
+    localStorage.setItem(storageKey, 'read');
     setShowNew(false);
 
     if (isGroup) {
