@@ -14,10 +14,25 @@ function Home() {
   const navigate = useNavigate();
   const location = useLocation();
   const [alarmCount, setAlarmCount] = useState(0);
-  const [memoryItems, setMemoryItems] = useState([]);
   const [latestAlarm, setLatestAlarm] = useState(null); // 홈 화면에 보여줄 알림 말풍선
   const [selectedCategory, setSelectedCategory] = useState('TOTAL');
   const [schedules, setSchedules] = useState([]);
+  const [memoryItems, setMemoryItems] = useState([
+    {
+      id: 8,
+      title: 'AI Championship 2026',
+      message: 'AI Championship 2026 일정을 확인해주세요.',
+      dday: -2,
+      isGroup: false,
+    },
+    {
+      id: 9,
+      title: '입상작 전시',
+      message: '입상작 전시 일정이 얼마 남지 않았어요.',
+      dday: 8,
+      isGroup: false,
+    },
+  ]);
 
   // 임박 일정 알림을 다시 불러와 메모리 아이템 갱신
   const fetchMemoryItems = async () => {
@@ -29,17 +44,17 @@ function Home() {
       setAlarmCount(alarmsData.result.alarmCount);
       setLatestAlarm(alarms.find((a) => !a.isOpened) ?? null);
 
-      setMemoryItems(
-        alarms
-          .filter((alarm) => alarm.Dday >= 0)
-          .map((alarm) => ({
-            id: alarm.scheduleId,
-            title: alarm.title,
-            message: alarm.message,
-            dday: alarm.Dday,
-            isGroup: alarm.isGroup,
-          })),
-      );
+      // setMemoryItems(
+      //   alarms
+      //     .filter((alarm) => alarm.Dday >= 0)
+      //     .map((alarm) => ({
+      //       id: alarm.scheduleId,
+      //       title: alarm.title,
+      //       message: alarm.message,
+      //       dday: alarm.Dday,
+      //       isGroup: alarm.isGroup,
+      //     })),
+      // );
     } catch (error) {
       console.error('메모리 일정 갱신 실패:', error);
     }
@@ -62,17 +77,17 @@ function Home() {
         const alarms = alarmsData.result.notifications ?? [];
         setAlarmCount(alarmsData.result.alarmCount);
         setLatestAlarm(alarms.find((a) => !a.isOpened) ?? null);
-        setMemoryItems(
-          alarms
-            .filter((alarm) => alarm.Dday >= 0)
-            .map((alarm) => ({
-              id: alarm.scheduleId,
-              title: alarm.title,
-              message: alarm.message,
-              dday: alarm.Dday,
-              isGroup: alarm.isGroup,
-            })),
-        );
+        // setMemoryItems(
+        //   alarms
+        //     .filter((alarm) => alarm.Dday >= 0)
+        //     .map((alarm) => ({
+        //       id: alarm.scheduleId,
+        //       title: alarm.title,
+        //       message: alarm.message,
+        //       dday: alarm.Dday,
+        //       isGroup: alarm.isGroup,
+        //     })),
+        // );
       } catch (error) {
         console.error('홈 데이터 조회 실패:', error);
       }
@@ -157,7 +172,9 @@ function Home() {
                 <span>{memory.message}</span>
 
                 <S.MemoryRight>
-                  <S.Dday $active={memory.dday <= 1}>{memory.dday === 0 ? 'D-DAY' : `D-${memory.dday}`}</S.Dday>
+                  <S.Dday $active={memory.dday <= 1}>
+                    {memory.dday === 0 ? 'D-DAY' : memory.dday < 0 ? `D+${Math.abs(memory.dday)}` : `D-${memory.dday}`}
+                  </S.Dday>
 
                   <S.ArrowButton type="button">›</S.ArrowButton>
                 </S.MemoryRight>
