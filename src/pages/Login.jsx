@@ -26,8 +26,8 @@ export default function Login() {
 
       if (data.isSuccess) {
         // 토큰 저장
-        const token = data.result?.token;
-        if (token) localStorage.setItem('token', token);
+        const token = data.result?.accessToken;
+        if (token) localStorage.setItem('accessToken', token);
 
         try {
           const [photoAuthData, notiAuthData] = await Promise.all([checkPhotoAuth(), checkNotiAuth()]);
