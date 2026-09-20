@@ -12,21 +12,10 @@ export default function CheckPhotoAuth() {
   /** 사진 권한 허용 여부 전송 API 함수 */
   const handlePhotoAuth = async () => {
     try {
-      const data = await putPhotoAuth(true);
-
-      if (data.isSuccess) {
-        if (isFromMyPage) {
-          navigate(-1);
-        } else {
-          navigate('/check-noti-auth');
-        }
-      } else {
-        alert(data.message || '권한 설정 처리 중 문제가 발생했습니다.');
-      }
+      await putPhotoAuth(true);
     } catch (error) {
-      console.error('권한 설정 오류:', error);
-      alert('처리 중 문제가 발생했습니다.');
-
+      console.log('웹 환경 권한 API 에러 (시연을 위해 무시됨):', error);
+    } finally {
       if (isFromMyPage) {
         navigate(-1);
       } else {
