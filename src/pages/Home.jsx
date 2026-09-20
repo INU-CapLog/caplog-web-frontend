@@ -4,7 +4,7 @@ import SearchBar from './SearchBar';
 import * as S from './Home.style';
 import logo from '../assets/logo.svg';
 import alarm from '../assets/alarm.svg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getAlarms } from '../api/notification';
 import { useEffect, useState } from 'react';
 import { getSchedules } from '../api/schedule';
@@ -12,6 +12,7 @@ import api from '../api/axios';
 
 function Home() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [alarmCount, setAlarmCount] = useState(0);
   const [memoryItems, setMemoryItems] = useState([]);
   const [latestAlarm, setLatestAlarm] = useState(null); // 홈 화면에 보여줄 알림 말풍선
@@ -43,6 +44,10 @@ function Home() {
       console.error('메모리 일정 갱신 실패:', error);
     }
   };
+
+  useEffect(() => {
+    fetchMemoryItems();
+  }, [location.pathname]);
 
   useEffect(() => {
     const fetchAll = async () => {
