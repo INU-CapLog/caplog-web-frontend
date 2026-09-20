@@ -4,7 +4,7 @@ import SearchBar from './SearchBar';
 import * as S from './Home.style';
 import logo from '../assets/logo.svg';
 import alarm from '../assets/alarm.svg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getAlarms } from '../api/notification';
 import { useEffect, useState } from 'react';
 import { getSchedules } from '../api/schedule';
@@ -12,30 +12,42 @@ import api from '../api/axios';
 
 function Home() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [alarmCount, setAlarmCount] = useState(0);
   const [memoryItems, setMemoryItems] = useState([]);
   const [latestAlarm, setLatestAlarm] = useState(null); // 홈 화면에 보여줄 알림 말풍선
   const [selectedCategory, setSelectedCategory] = useState('TOTAL');
   const [schedules, setSchedules] = useState([]);
 
-  // 기억해야 하는 일정박스 관련
+  // 임박 일정 알림을 다시 불러와 메모리 아이템 갱신
+  const fetchMemoryItems = async () => {
+    try {
+      const alarmsData = await getAlarms(0, 'IMMINENT');
+
+      const alarms = alarmsData.result.notifications ?? [];
+
+      setAlarmCount(alarmsData.result.alarmCount);
+      setLatestAlarm(alarms.find((a) => !a.isOpened) ?? null);
+
+      setMemoryItems(
+        alarms
+          .filter((alarm) => alarm.Dday >= 0)
+          .map((alarm) => ({
+            id: alarm.scheduleId,
+            title: alarm.title,
+            message: alarm.message,
+            dday: alarm.Dday,
+            isGroup: alarm.isGroup,
+          })),
+      );
+    } catch (error) {
+      console.error('메모리 일정 갱신 실패:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchMemorySchedules = async () => {
-      try {
-        const data = await getSchedules({
-          page: 0,
-          category: 'TOTAL',
-          searchWords: '',
-        });
-
-        // setMemorySchedules(data.result.list);
-      } catch (error) {
-        console.error('기억해야 할 정보 조회 실패:', error);
-      }
-    };
-
-    fetchMemorySchedules();
-  }, []);
+    fetchMemoryItems();
+  }, [location.pathname]);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -51,12 +63,15 @@ function Home() {
         setAlarmCount(alarmsData.result.alarmCount);
         setLatestAlarm(alarms.find((a) => !a.isOpened) ?? null);
         setMemoryItems(
-          alarms.map((alarm) => ({
-            id: alarm.scheduleId,
-            title: alarm.title,
-            message: alarm.message,
-            dday: alarm.Dday,
-          })),
+          alarms
+            .filter((alarm) => alarm.Dday >= 0)
+            .map((alarm) => ({
+              id: alarm.scheduleId,
+              title: alarm.title,
+              message: alarm.message,
+              dday: alarm.Dday,
+              isGroup: alarm.isGroup,
+            })),
         );
       } catch (error) {
         console.error('홈 데이터 조회 실패:', error);
@@ -66,9 +81,36 @@ function Home() {
     fetchAll();
   }, [selectedCategory]);
 
-  // 14일 이내 일정 연산
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // 자정마다 메모리 아이템의 D-day 갱신
+  useEffect(() => {
+    let interval;
+
+    const now = new Date();
+
+    const nextMidnight = new Date();
+    nextMidnight.setHours(24, 0, 0, 0);
+
+    const timeUntilMidnight = nextMidnight.getTime() - now.getTime();
+
+    const timeout = setTimeout(() => {
+      fetchMemoryItems();
+
+      interval = setInterval(
+        () => {
+          fetchMemoryItems();
+        },
+        24 * 60 * 60 * 1000,
+      );
+    }, timeUntilMidnight);
+
+    return () => {
+      clearTimeout(timeout);
+
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, []);
 
   const handleTestPush = async () => {
     try {

@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 // 스타일
 const PreviewTitle = styled.p`
@@ -100,8 +101,17 @@ const CountBadge = styled.span`
 
 function PreviewBox({ id, image, title, isGroup, isNew, elementCount }) {
   const navigate = useNavigate();
+  const storageKey = `${isGroup ? 'group' : 'schedule'}-${id}`;
+
+  const [showNew, setShowNew] = useState(() => {
+    const alreadyRead = localStorage.getItem(storageKey) === 'read';
+    return isNew && !alreadyRead;
+  });
 
   const handleClick = () => {
+    localStorage.setItem(storageKey, 'read');
+    setShowNew(false);
+
     if (isGroup) {
       navigate(`/group/${id}`);
     } else {
@@ -114,7 +124,7 @@ function PreviewBox({ id, image, title, isGroup, isNew, elementCount }) {
       <PreviewImageWrapper>
         <PreviewImage src={image} alt={title} />
 
-        {isNew && <NewBadge>NEW</NewBadge>}
+        {showNew && <NewBadge>NEW</NewBadge>}
 
         {isGroup && elementCount > 1 && <CountBadge>+{elementCount}</CountBadge>}
       </PreviewImageWrapper>

@@ -54,8 +54,8 @@ function Detail() {
         setEditTitle(currentEvent.title ?? '');
         setEditDetails(currentEvent.details ?? '');
         setEditAiSummary(data.result.aiSummary ?? '');
-        setEditCategory(data.result.category ?? 'TOTAL');
-        setEditGroup(data.result.group ?? '');
+        setEditCategory(data.result.schedule?.category ?? 'TOTAL');
+        setEditGroup(data.result.schedule?.groupId ?? '');
       } catch (error) {
         console.error('상세 정보 조회 실패:', error);
       }
@@ -136,21 +136,21 @@ function Detail() {
           title: editTitle,
           aiSummary: editAiSummary,
           category: editCategory,
-          hasGroup: Boolean(editGroup),
-          group: editGroup,
+          groupId: editGroup ? Number(editGroup) : null,
         },
 
         events: [
           {
             id: event.id,
             title: editTitle,
-            startAt: schedule,
-            endAt: schedule,
-            location: event.location ?? '',
+            startAt: new Date(schedule).toISOString(),
+            endAt: new Date(schedule).toISOString(),
             details: editDetails,
           },
         ],
       };
+
+      console.log('수정 요청 데이터:', updateData);
 
       const result = await updateSchedule(id, updateData);
 
@@ -159,7 +159,13 @@ function Detail() {
           ...prev,
 
           aiSummary: editAiSummary,
-          category: editCategory,
+
+          schedule: {
+            ...prev.schedule,
+            title: editTitle,
+            category: editCategory,
+            groupId: editGroup ? Number(editGroup) : null,
+          },
 
           events: [
             {
@@ -343,11 +349,13 @@ function Detail() {
                   <S.Select value={editGroup} onChange={(e) => setEditGroup(e.target.value)}>
                     <option value="">주제 없음</option>
 
-                    {subjectList.map((item) => (
-                      <option key={`${item.isGroup ? 'group' : 'schedule'}-${item.id}`} value={item.title}>
-                        {item.title}
-                      </option>
-                    ))}
+                    {subjectList
+                      .filter((item) => item.isGroup)
+                      .map((item) => (
+                        <option key={`group-${item.id}`} value={item.id}>
+                          {item.title}
+                        </option>
+                      ))}
                   </S.Select>
                 </S.SelectBox>
               </S.SelectRow>
