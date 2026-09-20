@@ -14,12 +14,8 @@ export const deleteSchedule = async (scheduleId) => {
   return response.data;
 };
 
-// ========================================
 // 일정 수정 (상세페이지 전용)
-// PATCH /schedule/{scheduleId}
-// ========================================
 export const updateSchedule = async (scheduleId, updateData) => {
-  // 실제 서버 연결
   const response = await api.put(`/schedule/${scheduleId}`, updateData);
 
   return response.data;

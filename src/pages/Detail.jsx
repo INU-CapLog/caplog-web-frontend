@@ -53,9 +53,9 @@ function Detail() {
 
         setEditTitle(currentEvent.title ?? '');
         setEditDetails(currentEvent.details ?? '');
-        setEditAiSummary(data.result.aiSummary ?? '');
-        setEditCategory(data.result.category ?? 'TOTAL');
-        setEditGroup(data.result.group ?? '');
+        setEditAiSummary(data.result.schedule?.aiSummary ?? '');
+        setEditCategory(data.result.schedule?.category ?? 'TOTAL');
+        setEditGroup(data.result.schedule?.groupId ?? '');
       } catch (error) {
         console.error('상세 정보 조회 실패:', error);
       }
@@ -137,7 +137,7 @@ function Detail() {
           aiSummary: editAiSummary,
           category: editCategory,
           hasGroup: Boolean(editGroup),
-          group: editGroup,
+          groupId: editGroup ? Number(editGroup) : 0,
         },
 
         events: [
@@ -158,8 +158,14 @@ function Detail() {
         setDetail((prev) => ({
           ...prev,
 
-          aiSummary: editAiSummary,
-          category: editCategory,
+          schedule: {
+            ...prev.schedule,
+            title: editTitle,
+            aiSummary: editAiSummary,
+            category: editCategory,
+            hasGroup: Boolean(editGroup),
+            groupId: editGroup ? Number(editGroup) : 0,
+          },
 
           events: [
             {
@@ -241,7 +247,7 @@ function Detail() {
         </S.DetailContentBox>
 
         <S.SummaryBox>
-          <p>{detail.aiSummary}</p>
+          <p>{detail.schedule?.aiSummary}</p>
         </S.SummaryBox>
       </S.InfoSection>
 
@@ -344,7 +350,7 @@ function Detail() {
                     <option value="">주제 없음</option>
 
                     {subjectList.map((item) => (
-                      <option key={`${item.isGroup ? 'group' : 'schedule'}-${item.id}`} value={item.title}>
+                      <option key={`${item.isGroup ? 'group' : 'schedule'}-${item.id}`} value={item.id}>
                         {item.title}
                       </option>
                     ))}
