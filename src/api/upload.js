@@ -4,7 +4,7 @@ import api from './axios';
 // 사진 업로드
 export const analyzeImage = async (imageFile) => {
   const formData = new FormData();
-  formData.append('image', imageFile);
+  formData.append('file', imageFile);
 
   const response = await api.post('/upload', formData);
 
