@@ -53,9 +53,9 @@ export default function BottomSheet({ isOpen, onClose, aiResult }) {
           title: aiResult.title || '',
           aiSummary: aiResult.scheduleAiSummary || '',
           captureImg: aiResult.imageId || '',
-          category: aiResult.category || '',
-          topic: matchedTopic,
-          details: aiResult.events?.[0]?.details || '',
+          category: REVERSE_CATEGORY_MAP[aiResult.category] || '',
+          topic: matchedTopic ? String(matchedTopic) : '',
+          details: aiResult.scheduleDetails || aiResult.events?.[0]?.details || '',
         });
 
         const initialEvents = (aiResult.events || []).map((event) => ({
@@ -96,6 +96,13 @@ export default function BottomSheet({ isOpen, onClose, aiResult }) {
     학교: 'SCHOOL',
     일상: 'DAILY',
     기타: 'ETC',
+  };
+
+  const REVERSE_CATEGORY_MAP = {
+    STUDY: '학습',
+    SCHOOL: '학교',
+    DAILY: '일상',
+    ETC: '기타',
   };
 
   /** 업로드 확정 API */
